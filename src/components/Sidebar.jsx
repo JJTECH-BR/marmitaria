@@ -1,17 +1,27 @@
-import { Link } from "@tanstack/react-router";
-import { FiGrid, FiBookOpen, FiTag, FiSettings, FiArrowLeft } from "react-icons/fi";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { FiGrid, FiBookOpen, FiTag, FiSettings, FiArrowLeft, FiClipboard, FiLogOut } from "react-icons/fi";
+import { useAuth } from "../contexts/AuthContext";
 
 const ITEMS = [
-  { to: "/admin", label: "Dashboard", icon: FiGrid, exact: true },
-  { to: "/admin/cardapio", label: "Cardápio", icon: FiBookOpen },
-  { to: "/admin/categorias", label: "Categorias", icon: FiTag },
-  { to: "/admin/configuracoes", label: "Configurações", icon: FiSettings },
+  { to: "/dashboard", label: "Dashboard", icon: FiGrid, exact: true },
+  { to: "/dashboard/produtos", label: "Produtos", icon: FiBookOpen },
+  { to: "/dashboard/categorias", label: "Categorias", icon: FiTag },
+  { to: "/dashboard/configuracoes", label: "Configurações", icon: FiSettings },
+  { to: "/dashboard/pedidos", label: "Pedidos", icon: FiClipboard },
 ];
 
 const linkBase =
   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground";
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/admin" });
+  };
+
   return (
     <aside className="border-b border-border bg-card lg:h-screen lg:w-64 lg:shrink-0 lg:border-r lg:border-b-0">
       <div className="flex items-center gap-2 px-4 py-5">
@@ -30,6 +40,10 @@ export default function Sidebar() {
             <span className="whitespace-nowrap">{label}</span>
           </Link>
         ))}
+        <button onClick={handleLogout} className={`${linkBase} w-full justify-start`}>
+          <FiLogOut size={17} />
+          <span className="whitespace-nowrap">Sair</span>
+        </button>
         <Link to="/" className={`${linkBase} lg:mt-6`}>
           <FiArrowLeft size={17} />
           <span className="whitespace-nowrap">Ver cardápio</span>

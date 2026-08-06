@@ -1,4 +1,16 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
+import AdminLoginPage from "../pages/AdminLogin/AdminLoginPage";
+import { useAuth } from "../contexts/AuthContext";
+
+function AdminRouteComponent() {
+  const { authenticated } = useAuth();
+
+  if (authenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <AdminLoginPage />;
+}
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -10,5 +22,5 @@ export const Route = createFileRoute("/admin")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: () => <Outlet />,
+  component: AdminRouteComponent,
 });

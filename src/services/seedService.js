@@ -4,7 +4,8 @@ import { uid } from "../utils/uid";
 export const DEFAULT_COMPANY = {
   name: "Tempero Marmitaria",
   whatsapp: "558499999999",
-  logo: "/images/logo.png",
+  phone: "(84) 99999-9999",
+  logo: "/images/logo-marmitaria.jpeg",
   banner: "/images/banner.jpg",
   address: "Av. Principal, 1200 — Centro",
   schedule: "Seg a Sáb — 10h às 15h",
@@ -102,6 +103,7 @@ export function seedIfEmpty() {
   const { categories, products } = buildSeed();
   storage.saveCompany(DEFAULT_COMPANY);
   storage.saveSettings(DEFAULT_SETTINGS);
+  window.localStorage.setItem("marmitaria:adminPin", "1234");
   storage.saveCategories(categories);
   storage.saveProducts(products);
   storage.saveOrders(storage.getOrders());
