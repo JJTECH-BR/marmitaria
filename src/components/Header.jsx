@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { FiShoppingBag, FiSettings } from "react-icons/fi";
+import { FiShoppingBag } from "react-icons/fi";
 import { useApp } from "../contexts/AppContext";
 import { useCart } from "../contexts/CartContext";
 
@@ -27,13 +27,6 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-1">
-          <Link
-            to="/admin"
-            aria-label="Painel administrativo"
-            className="rounded-full p-2.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
-            <FiSettings size={18} />
-          </Link>
           <Link
             to="/carrinho"
             aria-label="Carrinho"

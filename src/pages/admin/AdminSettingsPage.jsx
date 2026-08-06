@@ -6,22 +6,30 @@ import Input from "../../components/ui/Input";
 import Textarea from "../../components/ui/Textarea";
 import Loading from "../../components/ui/Loading";
 import { useApp } from "../../contexts/AppContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function AdminSettingsPage() {
   const { company, settings, saveCompany, saveSettings, loading } = useApp();
+  const { pin, savePin } = useAuth();
   const [form, setForm] = useState(null);
 
   useEffect(() => {
     if (company) {
-      setForm({ ...company, defaultMessage: settings?.defaultMessage || "" });
+      setForm({
+        ...company,
+        phone: company.phone || "",
+        defaultMessage: settings?.defaultMessage || "",
+        adminPin: pin || "1234",
+      });
     }
-  }, [company, settings]);
+  }, [company, settings, pin]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const { defaultMessage, ...companyData } = form;
+    const { defaultMessage, adminPin, ...companyData } = form;
     saveCompany(companyData);
-    saveSettings({ ...settings, defaultMessage });
+    saveSettings({ ...(settings || {}), defaultMessage });
+    savePin(adminPin || "1234");
     toast.success("Configurações salvas");
   };
 
@@ -47,13 +55,17 @@ export default function AdminSettingsPage() {
           <Input id="s-banner" label="Banner (URL)" {...field("banner")} />
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
+          <Input id="s-phone" label="Telefone" placeholder="(84) 99999-9999" {...field("phone")} />
           <Input
             id="s-whats"
             label="WhatsApp (só números)"
             placeholder="558499999999"
             {...field("whatsapp")}
           />
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
           <Input id="s-schedule" label="Horário de funcionamento" {...field("schedule")} />
+          <Input id="s-admin-pin" label="PIN Administrativo" maxLength={4} {...field("adminPin")} />
         </div>
         <Input id="s-address" label="Endereço" {...field("address")} />
         <Textarea
