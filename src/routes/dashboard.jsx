@@ -1,38 +1,25 @@
-import { createFileRoute, Navigate, useLocation } from '@tanstack/react-router';
-import { useAuth } from '../contexts/AuthContext';
-import DashboardPage from '../pages/admin/DashboardPage';
-import AdminMenuPage from '../pages/admin/AdminMenuPage';
-import AdminCategoriesPage from '../pages/admin/AdminCategoriesPage';
-import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
-import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
+import { useAuth } from "../contexts/AuthContext";
+import Sidebar from "../components/Sidebar";
 
-function DashboardRouteComponent() {
-    const { authenticated } = useAuth();
-    const location = useLocation();
+function DashboardLayout() {
+  const { authenticated } = useAuth();
 
-    if (!authenticated) {
-        return <Navigate to="/admin" replace />;
-    }
+  if (!authenticated) {
+    return <Navigate to="/admin" replace />;
+  }
 
-    if (location.pathname === '/dashboard/produtos') {
-        return <AdminMenuPage />;
-    }
-
-    if (location.pathname === '/dashboard/categorias') {
-        return <AdminCategoriesPage />;
-    }
-
-    if (location.pathname === '/dashboard/configuracoes') {
-        return <AdminSettingsPage />;
-    }
-
-    if (location.pathname === '/dashboard/pedidos') {
-        return <AdminOrdersPage />;
-    }
-
-    return <DashboardPage />;
+  return (
+    <div className="min-h-screen bg-background lg:flex">
+      <Sidebar />
+      <div className="min-w-0 flex-1 px-4 py-6 sm:px-8 lg:px-10">{<Outlet />}</div>
+    </div>
+  );
 }
 
-export const Route = createFileRoute('/dashboard')({
-    component: DashboardRouteComponent,
+export const Route = createFileRoute("/dashboard")({
+  head: () => ({
+    meta: [{ title: "Painel — Tempero Marmitaria" }, { name: "robots", content: "noindex" }],
+  }),
+  component: DashboardLayout,
 });

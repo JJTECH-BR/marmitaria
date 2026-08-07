@@ -11,13 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as CardapioRouteImport } from './routes/cardapio'
 import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as AdminCardapioRouteImport } from './routes/admin.cardapio'
-import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
-import { Route as AdminConfiguracoesRouteImport } from './routes/admin.configuracoes'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardCategoriasRouteImport } from './routes/dashboard.categorias'
+import { Route as DashboardConfiguracoesRouteImport } from './routes/dashboard.configuracoes'
+import { Route as DashboardPedidosRouteImport } from './routes/dashboard.pedidos'
+import { Route as DashboardProdutosRouteImport } from './routes/dashboard.produtos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,11 +27,6 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CardapioRoute = CardapioRouteImport.update({
-  id: '/cardapio',
-  path: '/cardapio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CarrinhoRoute = CarrinhoRouteImport.update({
@@ -44,101 +39,105 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
-const AdminCardapioRoute = AdminCardapioRouteImport.update({
-  id: '/cardapio',
-  path: '/cardapio',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminCategoriasRoute = AdminCategoriasRouteImport.update({
+const DashboardCategoriasRoute = DashboardCategoriasRouteImport.update({
   id: '/categorias',
   path: '/categorias',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
-const AdminConfiguracoesRoute = AdminConfiguracoesRouteImport.update({
+const DashboardConfiguracoesRoute = DashboardConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPedidosRoute = DashboardPedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProdutosRoute = DashboardProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
+  getParentRoute: () => DashboardRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
-  '/cardapio': typeof CardapioRoute
+  '/admin': typeof AdminRoute
   '/carrinho': typeof CarrinhoRoute
-  '/dashboard': typeof DashboardRoute
-  '/admin/cardapio': typeof AdminCardapioRoute
-  '/admin/categorias': typeof AdminCategoriasRoute
-  '/admin/configuracoes': typeof AdminConfiguracoesRoute
-  '/admin/': typeof AdminIndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/categorias': typeof DashboardCategoriasRoute
+  '/dashboard/configuracoes': typeof DashboardConfiguracoesRoute
+  '/dashboard/pedidos': typeof DashboardPedidosRoute
+  '/dashboard/produtos': typeof DashboardProdutosRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/cardapio': typeof CardapioRoute
+  '/admin': typeof AdminRoute
   '/carrinho': typeof CarrinhoRoute
-  '/dashboard': typeof DashboardRoute
-  '/admin/cardapio': typeof AdminCardapioRoute
-  '/admin/categorias': typeof AdminCategoriasRoute
-  '/admin/configuracoes': typeof AdminConfiguracoesRoute
-  '/admin': typeof AdminIndexRoute
+  '/dashboard/categorias': typeof DashboardCategoriasRoute
+  '/dashboard/configuracoes': typeof DashboardConfiguracoesRoute
+  '/dashboard/pedidos': typeof DashboardPedidosRoute
+  '/dashboard/produtos': typeof DashboardProdutosRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
-  '/cardapio': typeof CardapioRoute
+  '/admin': typeof AdminRoute
   '/carrinho': typeof CarrinhoRoute
-  '/dashboard': typeof DashboardRoute
-  '/admin/cardapio': typeof AdminCardapioRoute
-  '/admin/categorias': typeof AdminCategoriasRoute
-  '/admin/configuracoes': typeof AdminConfiguracoesRoute
-  '/admin/': typeof AdminIndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/categorias': typeof DashboardCategoriasRoute
+  '/dashboard/configuracoes': typeof DashboardConfiguracoesRoute
+  '/dashboard/pedidos': typeof DashboardPedidosRoute
+  '/dashboard/produtos': typeof DashboardProdutosRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
-    | '/cardapio'
     | '/carrinho'
     | '/dashboard'
-    | '/admin/cardapio'
-    | '/admin/categorias'
-    | '/admin/configuracoes'
-    | '/admin/'
+    | '/dashboard/categorias'
+    | '/dashboard/configuracoes'
+    | '/dashboard/pedidos'
+    | '/dashboard/produtos'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/cardapio'
-    | '/carrinho'
-    | '/dashboard'
-    | '/admin/cardapio'
-    | '/admin/categorias'
-    | '/admin/configuracoes'
     | '/admin'
+    | '/carrinho'
+    | '/dashboard/categorias'
+    | '/dashboard/configuracoes'
+    | '/dashboard/pedidos'
+    | '/dashboard/produtos'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/admin'
-    | '/cardapio'
     | '/carrinho'
     | '/dashboard'
-    | '/admin/cardapio'
-    | '/admin/categorias'
-    | '/admin/configuracoes'
-    | '/admin/'
+    | '/dashboard/categorias'
+    | '/dashboard/configuracoes'
+    | '/dashboard/pedidos'
+    | '/dashboard/produtos'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRouteWithChildren
-  CardapioRoute: typeof CardapioRoute
+  AdminRoute: typeof AdminRoute
   CarrinhoRoute: typeof CarrinhoRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -157,13 +156,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/cardapio': {
-      id: '/cardapio'
-      path: '/cardapio'
-      fullPath: '/cardapio'
-      preLoaderRoute: typeof CardapioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/carrinho': {
       id: '/carrinho'
       path: '/carrinho'
@@ -178,59 +170,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
+    '/dashboard/': {
+      id: '/dashboard/'
       path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/admin/cardapio': {
-      id: '/admin/cardapio'
-      path: '/cardapio'
-      fullPath: '/admin/cardapio'
-      preLoaderRoute: typeof AdminCardapioRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/categorias': {
-      id: '/admin/categorias'
+    '/dashboard/categorias': {
+      id: '/dashboard/categorias'
       path: '/categorias'
-      fullPath: '/admin/categorias'
-      preLoaderRoute: typeof AdminCategoriasRouteImport
-      parentRoute: typeof AdminRoute
+      fullPath: '/dashboard/categorias'
+      preLoaderRoute: typeof DashboardCategoriasRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/admin/configuracoes': {
-      id: '/admin/configuracoes'
+    '/dashboard/configuracoes': {
+      id: '/dashboard/configuracoes'
       path: '/configuracoes'
-      fullPath: '/admin/configuracoes'
-      preLoaderRoute: typeof AdminConfiguracoesRouteImport
-      parentRoute: typeof AdminRoute
+      fullPath: '/dashboard/configuracoes'
+      preLoaderRoute: typeof DashboardConfiguracoesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/pedidos': {
+      id: '/dashboard/pedidos'
+      path: '/pedidos'
+      fullPath: '/dashboard/pedidos'
+      preLoaderRoute: typeof DashboardPedidosRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/produtos': {
+      id: '/dashboard/produtos'
+      path: '/produtos'
+      fullPath: '/dashboard/produtos'
+      preLoaderRoute: typeof DashboardProdutosRouteImport
+      parentRoute: typeof DashboardRoute
     }
   }
 }
 
-interface AdminRouteChildren {
-  AdminCardapioRoute: typeof AdminCardapioRoute
-  AdminCategoriasRoute: typeof AdminCategoriasRoute
-  AdminConfiguracoesRoute: typeof AdminConfiguracoesRoute
-  AdminIndexRoute: typeof AdminIndexRoute
+interface DashboardRouteChildren {
+  DashboardCategoriasRoute: typeof DashboardCategoriasRoute
+  DashboardConfiguracoesRoute: typeof DashboardConfiguracoesRoute
+  DashboardPedidosRoute: typeof DashboardPedidosRoute
+  DashboardProdutosRoute: typeof DashboardProdutosRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminCardapioRoute: AdminCardapioRoute,
-  AdminCategoriasRoute: AdminCategoriasRoute,
-  AdminConfiguracoesRoute: AdminConfiguracoesRoute,
-  AdminIndexRoute: AdminIndexRoute,
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardCategoriasRoute: DashboardCategoriasRoute,
+  DashboardConfiguracoesRoute: DashboardConfiguracoesRoute,
+  DashboardPedidosRoute: DashboardPedidosRoute,
+  DashboardProdutosRoute: DashboardProdutosRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRouteWithChildren,
-  CardapioRoute: CardapioRoute,
+  AdminRoute: AdminRoute,
   CarrinhoRoute: CarrinhoRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

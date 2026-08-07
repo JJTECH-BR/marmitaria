@@ -1,7 +1,5 @@
 export const formatPrice = (value) =>
-  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
-    Number(value) || 0,
-  );
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value) || 0);
 
 export const formatDate = (iso) => {
   if (!iso) return "";

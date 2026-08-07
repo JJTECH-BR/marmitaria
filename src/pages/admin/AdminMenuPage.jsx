@@ -12,23 +12,95 @@ import Switch from "../../components/ui/Switch";
 import EmptyState from "../../components/ui/EmptyState";
 import { useApp } from "../../contexts/AppContext";
 import { formatPrice } from "../../utils/format";
+import { PREMIUM_MEATS, PRODUCT_TYPES, SIZES } from "../../constants/menu";
 
 const EMPTY_PRODUCT = {
   name: "",
   description: "",
-  price: "",
-  categoryId: "",
   image: "",
+  categoryId: "",
   available: true,
+  type: "individual",
+  price: "",
+  sizes: SIZES.map((s) => ({ ...s, price: "" })),
+  proteinsText: "",
+  meats: [],
 };
+
+function toForm(product) {
+  return {
+    name: product.name || "",
+    description: product.description || "",
+    image: product.image || "",
+    categoryId: product.categoryId || "",
+    available: product.available ?? true,
+    type: product.type || "individual",
+    price: product.price ?? "",
+    sizes: SIZES.map((s) => {
+      const existing = (product.sizes || []).find((item) => item.value === s.value);
+      return { ...s, price: existing ? existing.price : "" };
+    }),
+    proteinsText: (product.proteins || []).join("\n"),
+    meats: [...(product.meats || [])],
+  };
+}
+
+function fromForm(form) {
+  const base = {
+    name: form.name.trim(),
+    description: form.description.trim(),
+    image: form.image.trim(),
+    categoryId: form.categoryId,
+    available: form.available,
+    type: form.type,
+  };
+
+  if (form.type === "prato-do-dia") {
+    return {
+      ...base,
+      price: undefined,
+      sizes: form.sizes.map((s) => ({
+        value: s.value,
+        label: s.label,
+        price: Number(s.price) || 0,
+      })),
+      proteins: form.proteinsText
+        .split("\n")
+        .map((p) => p.trim())
+        .filter(Boolean),
+      meats: [...form.meats],
+    };
+  }
+
+  if (form.sizes.some((s) => Number(s.price) > 0)) {
+    return {
+      ...base,
+      price: undefined,
+      sizes: form.sizes.map((s) => ({
+        value: s.value,
+        label: s.label,
+        price: Number(s.price) || 0,
+      })),
+    };
+  }
+
+  return {
+    ...base,
+    price: Number(form.price) || 0,
+    sizes: undefined,
+    proteins: undefined,
+    meats: undefined,
+  };
+}
 
 export default function AdminMenuPage() {
   const { products, categories, categoryName, saveProduct, removeProduct } = useApp();
   const [form, setForm] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
 
-  const openNew = () =>
-    setForm({ ...EMPTY_PRODUCT, categoryId: categories[0]?.id || "" });
+  const openNew = () => setForm({ ...EMPTY_PRODUCT, categoryId: categories[0]?.id || "" });
+  const patch = (update) => setForm((current) => ({ ...current, ...update }));
+  const close = () => setForm(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -36,9 +108,13 @@ export default function AdminMenuPage() {
       toast.error("Informe nome e categoria.");
       return;
     }
-    saveProduct({ ...form, price: Number(form.price) || 0 });
+    if (form.type === "prato-do-dia" && !form.sizes.some((s) => Number(s.price) > 0)) {
+      toast.error("Informe o preço de pelo menos um tamanho.");
+      return;
+    }
+    saveProduct({ ...fromForm(form), id: form.id });
     toast.success(form.id ? "Produto atualizado" : "Produto criado");
-    setForm(null);
+    close();
   };
 
   const handleRemove = () => {
@@ -47,10 +123,26 @@ export default function AdminMenuPage() {
     toast.success("Produto excluído");
   };
 
+  const displayPrice = (product) => {
+    const priced = (product.sizes || []).filter((s) => Number(s.price) > 0);
+    if (product.type === "prato-do-dia" || priced.length) {
+      const min = Math.min(...priced.map((s) => s.price), Infinity);
+      return Number.isFinite(min) ? `a partir de ${formatPrice(min)}` : "—";
+    }
+    return formatPrice(product.price);
+  };
+
+  const isDaily = form?.type === "prato-do-dia";
+
+  const toggleMeat = (id) => {
+    const has = form.meats.includes(id);
+    patch({ meats: has ? form.meats.filter((m) => m !== id) : [...form.meats, id] });
+  };
+
   return (
     <AdminLayout
-      title="Cardápio"
-      subtitle={`${products.length} produtos cadastrados`}
+      title="Produtos"
+      subtitle={`${products.length} produtos no cardápio`}
       action={
         <Button onClick={openNew}>
           <FiPlus /> Novo Produto
@@ -63,7 +155,7 @@ export default function AdminMenuPage() {
             <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Produto</th>
-                <th className="px-4 py-3">Categoria</th>
+                <th className="px-4 py-3">Tipo</th>
                 <th className="px-4 py-3">Preço</th>
                 <th className="px-4 py-3">Disponível</th>
                 <th className="px-4 py-3 text-right">Ações</th>
@@ -84,15 +176,20 @@ export default function AdminMenuPage() {
                           />
                         ) : null}
                       </div>
-                      <span className="font-semibold">{product.name}</span>
+                      <div>
+                        <p className="font-semibold">{product.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {categoryName(product.categoryId)}
+                        </p>
+                      </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {categoryName(product.categoryId)}
+                  <td className="px-4 py-3">
+                    <Badge variant="accent">
+                      {PRODUCT_TYPES.find((t) => t.id === product.type)?.name || "—"}
+                    </Badge>
                   </td>
-                  <td className="px-4 py-3 font-bold text-primary">
-                    {formatPrice(product.price)}
-                  </td>
+                  <td className="px-4 py-3 font-bold text-primary">{displayPrice(product)}</td>
                   <td className="px-4 py-3">
                     <Badge variant={product.available ? "success" : "danger"}>
                       {product.available ? "Sim" : "Não"}
@@ -104,7 +201,7 @@ export default function AdminMenuPage() {
                         variant="outline"
                         size="icon"
                         aria-label={`Editar ${product.name}`}
-                        onClick={() => setForm({ ...product })}
+                        onClick={() => setForm({ ...toForm(product), id: product.id })}
                       >
                         <FiEdit2 />
                       </Button>
@@ -133,8 +230,9 @@ export default function AdminMenuPage() {
 
       <Modal
         isOpen={!!form}
-        onClose={() => setForm(null)}
+        onClose={close}
         title={form?.id ? "Editar produto" : "Novo produto"}
+        className="sm:max-w-xl"
       >
         {form ? (
           <form className="space-y-4 p-5" onSubmit={handleSubmit}>
@@ -142,29 +240,32 @@ export default function AdminMenuPage() {
               id="p-name"
               label="Nome"
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) => patch({ name: e.target.value })}
             />
             <Textarea
               id="p-desc"
               label="Descrição"
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) => patch({ description: e.target.value })}
             />
             <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                id="p-price"
-                label="Preço"
-                type="number"
-                step="0.01"
-                min="0"
-                value={form.price}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
-              />
+              <Select
+                id="p-type"
+                label="Tipo"
+                value={form.type}
+                onChange={(e) => patch({ type: e.target.value })}
+              >
+                {PRODUCT_TYPES.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </Select>
               <Select
                 id="p-cat"
                 label="Categoria"
                 value={form.categoryId}
-                onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+                onChange={(e) => patch({ categoryId: e.target.value })}
               >
                 <option value="">Selecione</option>
                 {categories.map((category) => (
@@ -174,22 +275,106 @@ export default function AdminMenuPage() {
                 ))}
               </Select>
             </div>
+
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Preço por tamanho
+              </span>
+              <div className="mt-1.5 grid grid-cols-3 gap-2">
+                {form.sizes.map((size, index) => (
+                  <label key={size.value} className="block space-y-1 rounded-xl bg-surface p-3">
+                    <span className="text-xs font-bold">{size.label}</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0,00"
+                      value={size.price}
+                      onChange={(e) =>
+                        patch({
+                          sizes: form.sizes.map((s, i) =>
+                            i === index ? { ...s, price: e.target.value } : s,
+                          ),
+                        })
+                      }
+                      className="w-full bg-transparent text-sm font-bold text-primary outline-none"
+                    />
+                  </label>
+                ))}
+              </div>
+              {!isDaily ? (
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Deixe tudo em 0 para usar o preço fixo abaixo.
+                </p>
+              ) : null}
+            </div>
+
+            {isDaily ? (
+              <>
+                <Textarea
+                  id="p-proteins"
+                  label="Proteínas (uma por linha)"
+                  placeholder={"Frango Grelhado\nCarne de Panela\nPeixe Frito"}
+                  value={form.proteinsText}
+                  onChange={(e) => patch({ proteinsText: e.target.value })}
+                />
+
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Carnes premium (+ R$ 4,00)
+                  </span>
+                  <div className="mt-1.5 grid grid-cols-2 gap-2">
+                    {PREMIUM_MEATS.map((meat) => {
+                      const checked = form.meats.includes(meat.id);
+                      return (
+                        <button
+                          type="button"
+                          key={meat.id}
+                          onClick={() => toggleMeat(meat.id)}
+                          className={
+                            checked
+                              ? "flex items-center justify-between rounded-xl border-2 border-primary bg-primary-soft px-3 py-2.5 text-left text-sm font-semibold text-primary"
+                              : "flex items-center justify-between rounded-xl border-2 border-border bg-card px-3 py-2.5 text-left text-sm font-semibold text-foreground hover:border-primary/40"
+                          }
+                        >
+                          <span>{meat.name}</span>
+                          <span className="text-xs opacity-70">+R$ 4</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <Input
+                id="p-price"
+                label="Preço fixo"
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.price}
+                onChange={(e) => patch({ price: e.target.value })}
+              />
+            )}
+
             <Input
               id="p-img"
               label="Imagem (URL)"
               placeholder="https://..."
               value={form.image}
-              onChange={(e) => setForm({ ...form, image: e.target.value })}
+              onChange={(e) => patch({ image: e.target.value })}
             />
+
             <div className="rounded-xl bg-surface p-4">
               <Switch
                 label="Disponível"
                 checked={form.available}
-                onChange={(available) => setForm({ ...form, available })}
+                onChange={(available) => patch({ available })}
               />
             </div>
+
             <div className="flex gap-3 pt-2">
-              <Button type="button" variant="outline" fullWidth onClick={() => setForm(null)}>
+              <Button type="button" variant="outline" fullWidth onClick={close}>
                 Cancelar
               </Button>
               <Button type="submit" fullWidth>

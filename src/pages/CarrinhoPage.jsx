@@ -64,11 +64,9 @@ export default function CarrinhoPage() {
                       <div>
                         <h2 className="text-sm font-bold">{item.name}</h2>
                         <p className="text-xs text-muted-foreground">
-                          {formatPrice(item.price)} un.
+                          {formatPrice(item.unitPrice)} un.
                         </p>
-                        {item.note ? (
-                          <p className="mt-1 text-xs text-accent-foreground">Obs: {item.note}</p>
-                        ) : null}
+                        <ItemDetails item={item} />
                       </div>
                       <button
                         onClick={() => removeItem(item.id)}
@@ -99,7 +97,7 @@ export default function CarrinhoPage() {
                         </Button>
                       </div>
                       <span className="text-sm font-extrabold text-primary">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(item.unitPrice * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -165,5 +163,27 @@ export default function CarrinhoPage() {
         </aside>
       </div>
     </ClientLayout>
+  );
+}
+
+function ItemDetails({ item }) {
+  const rows = [];
+  if (item.size?.label) rows.push(`Tamanho: ${item.size.label}`);
+  if (item.proteins?.length) rows.push(`Proteínas: ${item.proteins.join(", ")}`);
+  if (item.fries) {
+    rows.push(`Batata: ${item.fries === "batata-frita" ? "Batatinha Frita" : "Batata Palha"}`);
+  }
+  if (item.sides?.length) rows.push(`Acompanhamentos: ${item.sides.join(", ")}`);
+  if (item.meat) rows.push(`Carne premium: ${item.meat.name} (+${formatPrice(item.meat.extra)})`);
+  if (item.note) rows.push(`Obs: ${item.note}`);
+
+  if (!rows.length) return null;
+
+  return (
+    <ul className="mt-1 space-y-0.5 text-xs text-accent-foreground">
+      {rows.map((row) => (
+        <li key={row}>• {row}</li>
+      ))}
+    </ul>
   );
 }

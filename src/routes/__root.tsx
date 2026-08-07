@@ -15,10 +15,6 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppProvider } from "../contexts/AppContext";
 import { AuthProvider } from "../contexts/AuthContext";
 import { CartProvider } from "../contexts/CartContext";
-import { CategoriesProvider } from "../contexts/CategoriesContext";
-import { ProductsProvider } from "../contexts/ProductsContext";
-import { SettingsProvider } from "../contexts/SettingsContext";
-
 
 function NotFoundComponent() {
   return (
@@ -132,20 +128,13 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AppProvider>
         <AuthProvider>
-          <ProductsProvider>
-            <CategoriesProvider>
-              <SettingsProvider>
-                <CartProvider>
-                  {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-                  <Outlet />
-                  <Toaster position="top-center" richColors />
-                </CartProvider>
-              </SettingsProvider>
-            </CategoriesProvider>
-          </ProductsProvider>
+          <CartProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <Toaster position="top-center" richColors />
+          </CartProvider>
         </AuthProvider>
       </AppProvider>
     </QueryClientProvider>
   );
 }
-
