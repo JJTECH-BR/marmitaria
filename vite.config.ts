@@ -23,7 +23,7 @@ export default defineConfig(({ command }) => {
   ];
 
   if (command === "build") {
-    plugins.push(nitro({ defaultPreset: "cloudflare-module" }));
+    plugins.push(nitro({ defaultPreset: process.env["NITRO_PRESET"] ?? "vercel" }));
   }
 
   return {
