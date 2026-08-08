@@ -48,7 +48,10 @@ export default function AdminSettingsPage() {
 
   return (
     <AdminLayout title="Configurações" subtitle="Dados da marmitaria">
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-5 rounded-2xl bg-card p-6 shadow-card">
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-2xl space-y-5 rounded-2xl bg-card p-6 shadow-card"
+      >
         <Input id="s-name" label="Nome da empresa" {...field("name")} />
         <div className="grid gap-5 sm:grid-cols-2">
           <Input id="s-logo" label="Logo (URL)" {...field("logo")} />

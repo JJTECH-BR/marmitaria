@@ -4,6 +4,18 @@ import { uid } from "../utils/uid";
 
 const CartContext = createContext(null);
 
+function itemKey(item) {
+  return [
+    item.productId,
+    item.note,
+    item.size?.value,
+    (item.proteins || []).join("|"),
+    item.fries,
+    (item.sides || []).join("|"),
+    item.meat?.id || "",
+  ].join("__");
+}
+
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
   const [note, setNote] = useState("");
@@ -18,29 +30,37 @@ export function CartProvider({ children }) {
     if (ready) storage.saveCart(items);
   }, [items, ready]);
 
-  const addItem = useCallback((product, quantity = 1, itemNote = "") => {
+  const addItem = useCallback((product, quantity = 1, itemNote = "", customization = {}) => {
+    const { size, proteins, fries, sides, meat } = customization;
+    const unitPrice = size
+      ? (size.price || 0) + (meat?.extra || 0)
+      : Number(product.price) || 0;
+
+    const nextItem = {
+      id: uid(),
+      productId: product.id,
+      name: product.name,
+      image: product.image,
+      categoryId: product.categoryId,
+      type: product.type,
+      unitPrice,
+      size: size || null,
+      proteins: proteins || [],
+      fries: fries || null,
+      sides: sides || [],
+      meat: meat || null,
+      quantity,
+      note: itemNote,
+    };
+
     setItems((current) => {
-      const existing = current.find(
-        (item) => item.productId === product.id && item.note === itemNote,
-      );
+      const existing = current.find((item) => itemKey(item) === itemKey(nextItem));
       if (existing) {
         return current.map((item) =>
           item.id === existing.id ? { ...item, quantity: item.quantity + quantity } : item,
         );
       }
-      return [
-        ...current,
-        {
-          id: uid(),
-          productId: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          categoryId: product.categoryId,
-          quantity,
-          note: itemNote,
-        },
-      ];
+      return [...current, nextItem];
     });
   }, []);
 
@@ -63,7 +83,7 @@ export function CartProvider({ children }) {
   }, []);
 
   const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    () => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
     [items],
   );
 
