@@ -2,12 +2,12 @@ import storage from "./localStorageService";
 import { uid } from "../utils/uid";
 
 const SEED_VERSION_KEY = "marmitaria:seedVersion";
-const SEED_VERSION = "mvp-v5";
+const SEED_VERSION = "mvp-v17";
 
 export const DEFAULT_COMPANY = {
   name: "Tempero Marmitaria",
-  whatsapp: "558499999999",
-  phone: "(84) 99999-9999",
+  whatsapp: "5584999036688",
+  phone: "(84) 99903-6688",
   logo: "/images/logo-marmitaria.jpeg",
   banner: "/images/banner.jpg",
   address: "Av. Principal, 1200 — Centro",
@@ -24,79 +24,115 @@ function byName(categories, name) {
 
 function buildSeed() {
   const categories = [
-    { id: uid(), name: "Prato do Dia" },
+    { id: uid(), name: "Marmitas Tradicionais" },
+    { id: uid(), name: "Promocional do Dia" },
     { id: uid(), name: "Pratos Individuais" },
     { id: uid(), name: "Acompanhamentos" },
   ];
 
-  const pratoDoDia = byName(categories, "Prato do Dia");
+  const tradicionais = byName(categories, "Marmitas Tradicionais");
+  const pratoDoDia = byName(categories, "Promocional do Dia");
   const individuais = byName(categories, "Pratos Individuais");
   const acompanhamentos = byName(categories, "Acompanhamentos");
 
   const products = [
     {
       name: "Marmita Tradicional",
-      description:
-        "Escolha o tamanho, 2 proteínas e os acompanhamentos. Acompanha arroz e batata frita ou batata palha.",
+      description: "Escolha o tamanho, 2 proteínas e os acompanhamentos.",
       image: "/images/frango.jpg",
-      categoryId: pratoDoDia,
+      categoryId: tradicionais,
       type: "prato-do-dia",
       sizes: [
-        { value: 400, label: "400g", price: 15 },
-        { value: 550, label: "550g", price: 19 },
-        { value: 700, label: "700g", price: 23 },
+        { value: 400, label: "P 400g (prato quadrado)", price: 15 },
+        { value: 550, label: "M 550g (prato redondo)", price: 19 },
+        { value: 700, label: "G 700g (prato redondo)", price: 23 },
       ],
       proteins: [
         "Filé de Peito Grelhado",
         "Filé de Peito Empanado",
-        "Frango à Passarinho",
+        "Frango a Parmegiana",
         "Lasanha de Frango",
-        "Strogonoff de Frango",
+        "Salpicão de Frango",
         "Creme de Frango",
         "Calabresa (com barbecue ou sem)",
       ],
-      meats: ["carne-sol", "bife-acebolado", "molho-madeira", "empanado", "parmegiana"],
+      sides: [
+        "Feijão Preto", "Feijão Carioca", "Arroz", "Macarrão", "Purê de Batata",
+        "Farofa", "Vinagrete", "Beterraba Ralada", "Pepino", "Cenoura Ralada",
+        "Batata e Cenoura com Maionese", "Batata e Cenoura"
+      ]
     },
     {
-      name: "Promocional do Dia",
-      description:
-        "500g de comida. Acompanha arroz e batata frita ou batata palha. Escolha 2 proteínas.",
-      image: "/images/carne.jpg",
+      name: "Creme de Frango",
+      description: "500g de comida. Acompanha arroz e batata frita ou batata palha.",
+      image: "/images/frango.jpg",
       categoryId: pratoDoDia,
       type: "prato-do-dia",
       sizes: [{ value: 500, label: "500g", price: 17 }],
-      proteins: ["Creme de Frango", "Strogonoff de Frango", "Lasanha de Frango"],
-      meats: ["carne-sol", "bife-acebolado", "molho-madeira"],
     },
     {
-      name: "Filé à Parmegiana de Frango",
+      name: "Salpicão de Frango",
+      description: "500g de comida. Acompanha arroz e batata frita ou batata palha.",
+      image: "/images/frango.jpg",
+      categoryId: pratoDoDia,
+      type: "prato-do-dia",
+      sizes: [{ value: 500, label: "500g", price: 17 }],
+    },
+    {
+      name: "Lasanha",
+      description: "500g de comida. Acompanha arroz e batata frita ou batata palha.",
+      image: "/images/frango.jpg",
+      categoryId: pratoDoDia,
+      type: "prato-do-dia",
+      sizes: [{ value: 500, label: "500g", price: 17 }],
+    },
+    {
+      name: "Carne de Sol",
+      description: "500g de comida. Acompanha arroz e batata frita ou batata palha.",
+      image: "/images/carne.jpg",
+      categoryId: pratoDoDia,
+      type: "prato-do-dia",
+      sizes: [{ value: 500, label: "500g", price: 21 }],
+    },
+    {
+      name: "Bife Acebolado",
+      description: "500g de comida. Acompanha arroz e batata frita ou batata palha.",
+      image: "/images/carne.jpg",
+      categoryId: pratoDoDia,
+      type: "prato-do-dia",
+      sizes: [{ value: 500, label: "500g", price: 21 }],
+    },
+    {
+      name: "Bife ao Molho Madeira",
+      description: "500g de comida. Acompanha arroz e batata frita ou batata palha.",
+      image: "/images/carne.jpg",
+      categoryId: pratoDoDia,
+      type: "prato-do-dia",
+      sizes: [{ value: 500, label: "500g", price: 21 }],
+    },
+    {
+      name: "Prato Individual de Parmegiana de Frango",
       description: "Filé de frango empanado à parmegiana, acompanha arroz e batata frita.",
       image: "/images/frango.jpg",
       categoryId: individuais,
       type: "individual",
       sizes: [
-        { value: "M", label: "M", price: 17 },
-        { value: "G", label: "G", price: 24 },
+        { value: "P", label: "P", price: 17 },
+        { value: "M", label: "M", price: 24 },
+        { value: "G", label: "G", price: 32 },
       ],
     },
     {
-      name: "Filé à Parmegiana de Carne",
+      name: "Prato Individual de Parmegiana de Carne",
       description: "Filé de carne empanado à parmegiana, acompanha arroz e batata frita.",
       image: "/images/carne.jpg",
       categoryId: individuais,
       type: "individual",
       sizes: [
+        { value: "P", label: "P", price: 20 },
         { value: "M", label: "M", price: 27 },
         { value: "G", label: "G", price: 35 },
       ],
-    },
-    {
-      name: "Feijoada Completa",
-      description: "Feijoada tradicional com arroz, couve, farofa e laranja.",
-      image: "/images/feijoada.jpg",
-      categoryId: individuais,
-      type: "individual",
-      price: 29.9,
     },
     {
       name: "Batatinha Frita",
@@ -158,7 +194,7 @@ export function seedIfEmpty() {
   if (!needsSeed) return;
 
   const { categories, products } = buildSeed();
-  if (!storage.getCompany()) storage.saveCompany(DEFAULT_COMPANY);
+  storage.saveCompany(DEFAULT_COMPANY);
   if (!storage.getSettings()) storage.saveSettings(DEFAULT_SETTINGS);
   window.localStorage.setItem("marmitaria:adminPin", "1234");
   storage.saveCategories(categories);

@@ -9,7 +9,7 @@ import { FRIES_OPTIONS, PREMIUM_MEATS, SIZES } from "../constants/menu";
 
 const MAX_PROTEINS = 2;
 
-export default function ProductModal({ product, isOpen, onClose, onConfirm, sides = [] }) {
+export default function ProductModal({ product, isOpen, onClose, onConfirm }) {
   const isDaily = product?.type === "prato-do-dia";
 
   const [sizeValue, setSizeValue] = useState(null);
@@ -79,12 +79,12 @@ export default function ProductModal({ product, isOpen, onClose, onConfirm, side
   const handleConfirm = () => {
     const customization = isDaily
       ? {
-          size,
-          proteins,
-          fries,
-          sides: selectedSides,
-          meat,
-        }
+        size,
+        proteins,
+        fries,
+        sides: selectedSides,
+        meat,
+      }
       : { size };
     onConfirm(product, quantity, note.trim(), customization);
   };
@@ -109,7 +109,7 @@ export default function ProductModal({ product, isOpen, onClose, onConfirm, side
           <p className="text-sm text-muted-foreground">{product.description}</p>
           {isDaily ? (
             <p className="mt-2 text-sm font-semibold text-primary">
-              Acompanha batata frita ou palha, escolha 2 proteínas e os acompanhamentos.
+              Acompanha batata frita ou palha.
             </p>
           ) : (
             <p className="mt-2 text-xl font-extrabold text-primary">
@@ -120,93 +120,91 @@ export default function ProductModal({ product, isOpen, onClose, onConfirm, side
           )}
         </div>
 
-        {hasSizes ? (
+        {/* Renderiza a seleção de tamanho apenas se não for um prato do dia OU se houver mais de um tamanho */}
+        {hasSizes && (!isDaily || pricedSizes.length > 1) ? (
           <>
             <OptionGroup title="Escolha o tamanho" required>
               <div
                 className={cn("grid gap-2", pricedSizes.length > 2 ? "grid-cols-3" : "grid-cols-2")}
               >
                 {pricedSizes.map((option) => (
-                  <SizeCard
-                    key={option.value}
-                    option={option}
-                    active={sizeValue === option.value}
-                    onClick={() => setSizeValue(option.value)}
-                  />
+                  <SizeCard key={option.value} option={option} active={sizeValue === option.value} onClick={() => setSizeValue(option.value)} />
                 ))}
               </div>
             </OptionGroup>
+          </>
+        ) : null}
 
-            {isDaily ? (
-              <>
-                {product.proteins?.length ? (
-                  <OptionGroup title="Escolha até 2 proteínas" required>
-                    <div className="flex flex-wrap gap-2">
-                      {product.proteins.map((name) => (
-                        <Pill
-                          key={name}
-                          active={proteins.includes(name)}
-                          disabled={proteins.length >= MAX_PROTEINS && !proteins.includes(name)}
-                          onClick={() => toggleProtein(name)}
-                        >
-                          <span>{name}</span>
-                          {proteins.includes(name) ? <FiCheck /> : null}
-                        </Pill>
-                      ))}
-                    </div>
-                  </OptionGroup>
-                ) : null}
+        {isDaily ? (
+          <>
+            {product.proteins?.length ? (
+              <OptionGroup title="Escolha até 2 proteínas" required={product.proteins.length > 0}>
+                <div className="flex flex-wrap gap-2">
+                  {product.proteins.map((name) => (
+                    <Pill
+                      key={name}
+                      active={proteins.includes(name)}
+                      disabled={proteins.length >= MAX_PROTEINS && !proteins.includes(name)}
+                      onClick={() => toggleProtein(name)}
+                    >
+                      <span>{name}</span>
+                      {proteins.includes(name) ? <FiCheck /> : null}
+                    </Pill>
+                  ))}
+                </div>
+              </OptionGroup>
+            ) : null}
 
-                <OptionGroup title="Acompanhamento da casa" required>
-                  <div className="grid grid-cols-2 gap-2">
-                    {FRIES_OPTIONS.map((option) => (
-                      <ChoiceCard
-                        key={option.id}
-                        label={option.name}
-                        active={fries === option.id}
-                        onClick={() => setFries(option.id)}
-                      />
-                    ))}
-                  </div>
-                </OptionGroup>
+            {product.sides?.length ? (
+              <OptionGroup title="Acompanhamentos" subtitle="Escolha os que quiser">
+                <div className="grid grid-cols-2 gap-2">
+                  {product.sides.map((side) => (
+                    <ChoiceCard
+                      key={side}
+                      label={side}
+                      active={selectedSides.includes(side)}
+                      onClick={() => toggleSide(side)}
+                    />
+                  ))}
+                </div>
+              </OptionGroup>
+            ) : null}
 
-                {sides.length ? (
-                  <OptionGroup title="Acompanhamentos incluídos" subtitle="Escolha os que quiser">
-                    <div className="grid grid-cols-2 gap-2">
-                      {sides.map((side) => (
-                        <ChoiceCard
-                          key={side.id}
-                          label={side.name}
-                          active={selectedSides.includes(side.name)}
-                          onClick={() => toggleSide(side.name)}
-                        />
-                      ))}
-                    </div>
-                  </OptionGroup>
-                ) : null}
+            {!product.sides?.length ? (
+              <OptionGroup title="Acompanhamento da casa" required>
+                <div className="grid grid-cols-2 gap-2">
+                  {FRIES_OPTIONS.map((option) => (
+                    <ChoiceCard
+                      key={option.id}
+                      label={option.name}
+                      active={fries === option.id}
+                      onClick={() => setFries(option.id)}
+                    />
+                  ))}
+                </div>
+              </OptionGroup>
+            ) : null}
 
-                {availableMeats.length ? (
-                  <OptionGroup
-                    title="Adicione uma carne com R$ 4 de acréscimo"
-                    subtitle="Por pessoa — não é uma porção extra"
-                  >
-                    <div className="flex flex-wrap gap-2">
-                      {availableMeats.map((option) => (
-                        <Pill
-                          key={option.id}
-                          active={meatId === option.id}
-                          onClick={() =>
-                            setMeatId((current) => (current === option.id ? "" : option.id))
-                          }
-                        >
-                          <span>{option.name}</span>
-                          <span className="opacity-80">+{formatPrice(option.extra)}</span>
-                        </Pill>
-                      ))}
-                    </div>
-                  </OptionGroup>
-                ) : null}
-              </>
+            {availableMeats.length ? (
+              <OptionGroup
+                title="Adicione uma carne com R$ 4 de acréscimo"
+                subtitle="Por pessoa — não é uma porção extra"
+              >
+                <div className="flex flex-wrap gap-2">
+                  {availableMeats.map((option) => (
+                    <Pill
+                      key={option.id}
+                      active={meatId === option.id}
+                      onClick={() =>
+                        setMeatId((current) => (current === option.id ? "" : option.id))
+                      }
+                    >
+                      <span>{option.name}</span>
+                      <span className="opacity-80">+{formatPrice(option.extra)}</span>
+                    </Pill>
+                  ))}
+                </div>
+              </OptionGroup>
             ) : null}
           </>
         ) : null}
