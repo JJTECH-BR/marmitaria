@@ -10,8 +10,8 @@ import { FRIES_OPTIONS, PREMIUM_MEATS, SIZES } from "../constants/menu";
 const MAX_PROTEINS = 2;
 
 export default function ProductModal({ product, isOpen, onClose, onConfirm }) {
+  const isCustomizable = product?.type === "customizable";
   const isDaily = product?.type === "prato-do-dia";
-
   const [sizeValue, setSizeValue] = useState(null);
   const [proteins, setProteins] = useState([]);
   const [fries, setFries] = useState("batata-frita");
@@ -34,9 +34,15 @@ export default function ProductModal({ product, isOpen, onClose, onConfirm }) {
   }, [isOpen, product]);
 
   const availableMeats = useMemo(() => {
-    const ids = new Set(product?.meats || []);
+    const ids = new Set(
+      product?.meats?.length
+        ? product.meats
+        : isDaily
+          ? PREMIUM_MEATS.map((meat) => meat.id)
+          : [],
+    );
     return PREMIUM_MEATS.filter((meat) => ids.has(meat.id));
-  }, [product]);
+  }, [product, isDaily]);
 
   const size = useMemo(
     () => product?.sizes?.find((s) => s.value === sizeValue) || null,
@@ -55,9 +61,8 @@ export default function ProductModal({ product, isOpen, onClose, onConfirm }) {
     [availableMeats, meatId],
   );
 
-  const unitPrice = hasSizes
-    ? (size?.price || 0) + (isDaily ? meat?.extra || 0 : 0)
-    : Number(product?.price) || 0;
+  const basePrice = hasSizes ? size?.price || 0 : Number(product?.price) || 0;
+  const unitPrice = basePrice + (meat?.extra || 0);
   const total = unitPrice * quantity;
 
   if (!product) return null;
@@ -77,7 +82,7 @@ export default function ProductModal({ product, isOpen, onClose, onConfirm }) {
   };
 
   const handleConfirm = () => {
-    const customization = isDaily
+    const customization = isCustomizable || isDaily
       ? {
         size,
         proteins,
@@ -107,21 +112,19 @@ export default function ProductModal({ product, isOpen, onClose, onConfirm }) {
       <div className="space-y-6 p-5">
         <div>
           <p className="text-sm text-muted-foreground">{product.description}</p>
-          {isDaily ? (
+          {isCustomizable ? (
             <p className="mt-2 text-sm font-semibold text-primary">
-              Acompanha batata frita ou palha.
+              Monte sua marmita do seu jeito.
             </p>
           ) : (
             <p className="mt-2 text-xl font-extrabold text-primary">
-              {hasSizes
-                ? `a partir de ${formatPrice(pricedSizes[0]?.price)}`
-                : formatPrice(product.price)}
+              {formatPrice(hasSizes ? pricedSizes[0]?.price : product.price)}
             </p>
           )}
         </div>
 
         {/* Renderiza a seleção de tamanho apenas se não for um prato do dia OU se houver mais de um tamanho */}
-        {hasSizes && (!isDaily || pricedSizes.length > 1) ? (
+        {hasSizes && (!isCustomizable || pricedSizes.length > 1) ? (
           <>
             <OptionGroup title="Escolha o tamanho" required>
               <div
@@ -135,7 +138,7 @@ export default function ProductModal({ product, isOpen, onClose, onConfirm }) {
           </>
         ) : null}
 
-        {isDaily ? (
+        {isCustomizable ? (
           <>
             {product.proteins?.length ? (
               <OptionGroup title="Escolha até 2 proteínas" required={product.proteins.length > 0}>
@@ -169,44 +172,42 @@ export default function ProductModal({ product, isOpen, onClose, onConfirm }) {
                 </div>
               </OptionGroup>
             ) : null}
-
-            {!product.sides?.length ? (
-              <OptionGroup title="Acompanhamento da casa" required>
-                <div className="grid grid-cols-2 gap-2">
-                  {FRIES_OPTIONS.map((option) => (
-                    <ChoiceCard
-                      key={option.id}
-                      label={option.name}
-                      active={fries === option.id}
-                      onClick={() => setFries(option.id)}
-                    />
-                  ))}
-                </div>
-              </OptionGroup>
-            ) : null}
-
-            {availableMeats.length ? (
-              <OptionGroup
-                title="Adicione uma carne com R$ 4 de acréscimo"
-                subtitle="Por pessoa — não é uma porção extra"
-              >
-                <div className="flex flex-wrap gap-2">
-                  {availableMeats.map((option) => (
-                    <Pill
-                      key={option.id}
-                      active={meatId === option.id}
-                      onClick={() =>
-                        setMeatId((current) => (current === option.id ? "" : option.id))
-                      }
-                    >
-                      <span>{option.name}</span>
-                      <span className="opacity-80">+{formatPrice(option.extra)}</span>
-                    </Pill>
-                  ))}
-                </div>
-              </OptionGroup>
-            ) : null}
           </>
+        ) : null}
+
+        {availableMeats.length ? (
+          <OptionGroup
+            title="Carnes premium (+ R$ 4,00)"
+            subtitle={isDaily ? "Escolha uma opção extra" : "Por pessoa — não é uma porção extra"}
+          >
+            <div className="flex flex-wrap gap-2">
+              {availableMeats.map((option) => (
+                <Pill
+                  key={option.id}
+                  active={meatId === option.id}
+                  onClick={() => setMeatId((current) => (current === option.id ? "" : option.id))}
+                >
+                  <span>{option.name}</span>
+                  <span className="opacity-80">+{formatPrice(option.extra)}</span>
+                </Pill>
+              ))}
+            </div>
+          </OptionGroup>
+        ) : null}
+
+        {isDaily ? (
+          <OptionGroup title="Escolha a batata" required>
+            <div className="grid grid-cols-2 gap-2">
+              {FRIES_OPTIONS.map((option) => (
+                <ChoiceCard
+                  key={option.id}
+                  label={option.name}
+                  active={fries === option.id}
+                  onClick={() => setFries(option.id)}
+                />
+              ))}
+            </div>
+          </OptionGroup>
         ) : null}
 
         <div className="flex items-center justify-between rounded-2xl bg-surface p-3">

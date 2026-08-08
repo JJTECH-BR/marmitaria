@@ -19,10 +19,8 @@ export const FRIES_OPTIONS = [
 
 export const PREMIUM_MEATS = [
   { id: "carne-sol", name: "Carne de Sol", extra: 4 },
-  { id: "bife-acebolado", name: "Bife Acebolado", extra: 4 },
-  { id: "molho-madeira", name: "Ao Molho Madeira", extra: 4 },
-  { id: "empanado", name: "Empanado", extra: 4 },
-  { id: "parmegiana", name: "À Parmegiana", extra: 4 },
+  { id: "bife-acebolado-molho-madeira", name: "Bife Acebolado ao Molho Madeira", extra: 4 },
+  { id: "empanado-parmegiana", name: "Empanado e À Parmegiana", extra: 4 },
 ];
 
 export const EXTRA_MEAT_AMOUNT = 4;

@@ -2,7 +2,7 @@ import storage from "./localStorageService";
 import { uid } from "../utils/uid";
 
 const SEED_VERSION_KEY = "marmitaria:seedVersion";
-const SEED_VERSION = "mvp-v17";
+const SEED_VERSION = "mvp-v18";
 
 export const DEFAULT_COMPANY = {
   name: "Tempero Marmitaria",
@@ -37,16 +37,56 @@ function buildSeed() {
 
   const products = [
     {
-      name: "Marmita Tradicional",
-      description: "Escolha o tamanho, 2 proteínas e os acompanhamentos.",
+      name: "Marmita P (400g)",
+      description: "Monte sua marmita com 2 proteínas e acompanhamentos.",
       image: "/images/frango.jpg",
       categoryId: tradicionais,
-      type: "prato-do-dia",
-      sizes: [
-        { value: 400, label: "P 400g (prato quadrado)", price: 15 },
-        { value: 550, label: "M 550g (prato redondo)", price: 19 },
-        { value: 700, label: "G 700g (prato redondo)", price: 23 },
+      type: "customizable",
+      price: 15,
+      proteins: [
+        "Filé de Peito Grelhado",
+        "Filé de Peito Empanado",
+        "Frango a Parmegiana",
+        "Lasanha de Frango",
+        "Salpicão de Frango",
+        "Creme de Frango",
+        "Calabresa (com barbecue ou sem)",
       ],
+      sides: [
+        "Feijão Preto", "Feijão Carioca", "Arroz", "Macarrão", "Purê de Batata",
+        "Farofa", "Vinagrete", "Beterraba Ralada", "Pepino", "Cenoura Ralada",
+        "Batata e Cenoura com Maionese", "Batata e Cenoura"
+      ]
+    },
+    {
+      name: "Marmita M (550g)",
+      description: "Monte sua marmita com 2 proteínas e acompanhamentos.",
+      image: "/images/frango.jpg",
+      categoryId: tradicionais,
+      type: "customizable",
+      price: 19,
+      proteins: [
+        "Filé de Peito Grelhado",
+        "Filé de Peito Empanado",
+        "Frango a Parmegiana",
+        "Lasanha de Frango",
+        "Salpicão de Frango",
+        "Creme de Frango",
+        "Calabresa (com barbecue ou sem)",
+      ],
+      sides: [
+        "Feijão Preto", "Feijão Carioca", "Arroz", "Macarrão", "Purê de Batata",
+        "Farofa", "Vinagrete", "Beterraba Ralada", "Pepino", "Cenoura Ralada",
+        "Batata e Cenoura com Maionese", "Batata e Cenoura"
+      ]
+    },
+    {
+      name: "Marmita G (700g)",
+      description: "Monte sua marmita com 2 proteínas e acompanhamentos.",
+      image: "/images/frango.jpg",
+      categoryId: tradicionais,
+      type: "customizable",
+      price: 23,
       proteins: [
         "Filé de Peito Grelhado",
         "Filé de Peito Empanado",

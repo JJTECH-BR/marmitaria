@@ -127,7 +127,7 @@ export default function AdminMenuPage() {
     const priced = (product.sizes || []).filter((s) => Number(s.price) > 0);
     if (product.type === "prato-do-dia" || priced.length) {
       const min = Math.min(...priced.map((s) => s.price), Infinity);
-      return Number.isFinite(min) ? `a partir de ${formatPrice(min)}` : "—";
+      return Number.isFinite(min) ? formatPrice(min) : "—";
     }
     return formatPrice(product.price);
   };

@@ -35,13 +35,12 @@ const SECTIONS = [
     subtitle: "Clássicos sempre no cardápio.",
     categoryName: "Pratos Individuais",
   },
-  { id: "acompanhamentos", label: "Acompanhamentos", title: "Acompanhamentos", subtitle: "Porções extras para completar sua marmita.", categoryName: "Acompanhamentos" },
 ];
 
 export default function HomePage() {
   const { company, products, categories, loading } = useApp();
   const { addItem, count, subtotal } = useCart();
-  const [activeCategory, setActiveCategory] = useState(SECTIONS[0].id);
+  const [activeTab, setActiveTab] = useState(SECTIONS[0].id);
   const [selected, setSelected] = useState(null);
 
   const byCategoryName = (name) => {
@@ -77,16 +76,19 @@ export default function HomePage() {
 
   return (
     <ClientLayout>
-      <Hero company={company} />
+      <Hero company={company} onShowAll={() => setActiveTab("ver-pratos")} />
 
       <nav className="sticky top-16 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="container-app flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {SECTIONS.map((section) => {
-            const isActive = activeCategory === section.id;
+          {SECTIONS.map((tab) => {
+            const isActive = activeTab === tab.id;
             return (
               <button
-                key={section.id}
-                onClick={() => setActiveCategory(section.id)}
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  document.getElementById(tab.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
                 className={cn(
                   "shrink-0 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold transition-all",
                   isActive
@@ -94,16 +96,19 @@ export default function HomePage() {
                     : "text-muted-foreground hover:border-primary/50 hover:text-primary",
                 )}
               >
-                {section.label}
+                {tab.label}
               </button>
             );
           })}
         </div>
       </nav>
 
-      <main className="container-app py-8">
-        {SECTIONS.map((section) =>
-          activeCategory === section.id ? (
+      <main className="container-app space-y-12 py-8">
+        {SECTIONS.map((section) => {
+          const isVisible = activeTab === "ver-pratos" || activeTab === section.id;
+          if (!isVisible) return null;
+
+          return (
             <MenuSection
               key={section.id}
               id={section.id}
@@ -113,8 +118,8 @@ export default function HomePage() {
               onOpen={openProduct}
               onAdd={quickAdd}
             />
-          ) : null,
-        )}
+          );
+        })}
       </main>
 
       <ProductModal
@@ -131,33 +136,29 @@ export default function HomePage() {
   );
 }
 
-function Hero({ company }) {
+function Hero({ company, onShowAll }) {
   return (
     <section className="container-app pt-5">
       <div className="relative overflow-hidden rounded-3xl shadow-lg">
-        {company?.banner ? (
-          <img
-            src={company.banner}
-            alt={`Cardápio da ${company?.name}`}
-            className="h-64 w-full object-cover sm:h-80"
-          />
-        ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <img
+          src={company?.banner || "/images/banner.jpg"}
+          alt="Marmitas deliciosas"
+          className="h-64 w-full object-cover sm:h-80"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 space-y-4 p-8 sm:p-12">
-          <Badge variant="accent">Feito na hora</Badge>
+          <Badge variant="accent">AMOR EM CADA DETALHE</Badge>
           <h1 className="max-w-lg text-4xl font-extrabold text-white sm:text-5xl">
             Cardápio do Dia
           </h1>
           <p className="max-w-lg text-base text-white/90">
-            Comida caseira, porções generosas e entrega rápida. Monte sua marmita do seu jeito.
+            COMIDA DE QUALIDADE SABOR QUE IMPRESSIONA.
           </p>
           <Button
             size="lg"
             variant="accent"
             className="mt-4"
-            onClick={() =>
-              document.getElementById("promocional-do-dia")?.scrollIntoView({ behavior: "smooth" })
-            }
+            onClick={onShowAll}
           >
             Ver Pratos <FiArrowRight />
           </Button>
