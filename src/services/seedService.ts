@@ -1,10 +1,10 @@
-import storage from "./localStorageService";
+import storage, { Category, Product, Company, Settings } from "./localStorageService";
 import { uid } from "../utils/uid";
 
 const SEED_VERSION_KEY = "marmitaria:seedVersion";
 const SEED_VERSION = "mvp-v18";
 
-export const DEFAULT_COMPANY = {
+export const DEFAULT_COMPANY: Company = {
   name: "Tempero Marmitaria",
   whatsapp: "5584999036688",
   phone: "(84) 99903-6688",
@@ -14,16 +14,20 @@ export const DEFAULT_COMPANY = {
   schedule: "Seg a Sáb — 10h às 15h",
 };
 
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: Settings = {
   defaultMessage: "Olá! Gostaria de fazer um pedido.",
 };
 
-function byName(categories, name) {
-  return categories.find((c) => c.name === name).id;
+// O TypeScript agora sabe que a lista é de Categorias e retorna uma string (o ID)
+function byName(categories: Category[], name: string): string {
+  // CORREÇÃO: Usando colchetes para evitar o erro de index signature
+  const category = categories.find((c) => c["name"] === name);
+  return category ? String(category["id"]) : "";
 }
 
-function buildSeed() {
-  const categories = [
+// Essa função agora avisa explicitamente o que ela devolve no final
+function buildSeed(): { categories: Category[]; products: Product[] } {
+  const categories: Category[] = [
     { id: uid(), name: "Marmitas Tradicionais" },
     { id: uid(), name: "Promocional do Dia" },
     { id: uid(), name: "Pratos Individuais" },
@@ -35,7 +39,7 @@ function buildSeed() {
   const individuais = byName(categories, "Pratos Individuais");
   const acompanhamentos = byName(categories, "Acompanhamentos");
 
-  const products = [
+  const rawProducts = [
     {
       name: "Marmita P (400g)",
       description: "Monte sua marmita com 2 proteínas e acompanhamentos.",
@@ -222,12 +226,19 @@ function buildSeed() {
       categoryId: acompanhamentos,
       type: "acompanhamento",
     },
-  ].map((product) => ({ id: uid(), available: true, ...product }));
+  ];
+
+  // Adiciona as propriedades faltantes garantindo que o retorno seja um array de Product
+  const products: Product[] = rawProducts.map((product) => ({
+    id: uid(),
+    available: true,
+    ...product,
+  }));
 
   return { categories, products };
 }
 
-export function seedIfEmpty() {
+export function seedIfEmpty(): void {
   const seededVersion = readSeedVersion();
   const needsSeed = !storage.hasData() || seededVersion !== SEED_VERSION;
 
@@ -242,7 +253,7 @@ export function seedIfEmpty() {
   writeSeedVersion();
 }
 
-function readSeedVersion() {
+function readSeedVersion(): string | null {
   if (typeof window === "undefined") return null;
   try {
     return window.localStorage.getItem(SEED_VERSION_KEY);
@@ -251,7 +262,7 @@ function readSeedVersion() {
   }
 }
 
-function writeSeedVersion() {
+function writeSeedVersion(): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(SEED_VERSION_KEY, SEED_VERSION);
