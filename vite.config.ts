@@ -2,44 +2,17 @@ import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import tsConfigPaths from "vite-tsconfig-paths";
-import { nitro } from "nitro/vite";
 
-export default defineConfig(({ command }) => {
-  const plugins = [
-    tanstackStart({
-      server: { entry: "server" },
-      importProtection: {
-        behavior: "error",
-        client: {
-          files: ["**/server/**"],
-          specifiers: ["server-only"],
-        },
-      },
-    }),
-    viteReact(),
+export default defineConfig({
+  server: {
+    port: 3000,
+  },
+  resolve: {
+    tsconfigPaths: true,
+  },
+  plugins: [
     tailwindcss(),
-    tsConfigPaths({ projects: ["./tsconfig.json"] }),
-  ];
-
-  if (command === "build") {
-    plugins.push(nitro({ defaultPreset: process.env["NITRO_PRESET"] ?? "vercel" }));
-  }
-
-  return {
-    css: { transformer: "lightningcss" },
-    resolve: {
-      alias: { "@": `${process.cwd()}/src` },
-      dedupe: [
-        "react",
-        "react-dom",
-        "react/jsx-runtime",
-        "react/jsx-dev-runtime",
-        "@tanstack/react-query",
-        "@tanstack/query-core",
-      ],
-    },
-    plugins,
-    server: { host: "::", port: 8080 },
-  };
+    tanstackStart(),
+    viteReact(),
+  ],
 });

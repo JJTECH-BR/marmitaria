@@ -1,44 +1,46 @@
-/**
- * Camada única de acesso à persistência.
- * Os componentes NUNCA acessam o localStorage diretamente.
- * Para migrar para uma API REST no futuro, basta trocar o corpo
- * destas funções (mantendo a mesma assinatura) — nenhum componente muda.
- */
-
-// 1. Interfaces (Tipagens)
-// Defina os moldes das suas entidades. O [key: string]: any permite que 
-// você passe propriedades dinâmicas por enquanto sem o TypeScript reclamar.
-export interface Product {
-  id?: string | number;
-  [key: string]: any;
+interface CompanyData {
+  name: string;
+  whatsapp: string;
+  phone: string;
+  logo: string;
+  banner: string;
+  address: string;
+  schedule: string;
 }
 
-export interface Category {
-  id?: string | number;
-  [key: string]: any;
+interface Settings {
+  defaultMessage?: string;
 }
 
-export interface Settings {
-  [key: string]: any;
+interface Category {
+  id: string;
+  name: string;
 }
 
-export interface Order {
-  id?: string | number;
-  [key: string]: any;
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  categoryId: string;
+  type: string;
+  available: boolean;
+  price?: number;
+  sizes?: { value: number | string; label: string; price: number }[];
+  proteins?: string[];
+  sides?: string[];
 }
 
-export interface Company {
-  name?: string;
-  [key: string]: any;
+interface Order {
+  id: string;
+  status: string;
+  data: string;
+  items: unknown[];
+  note?: string;
+  total?: number;
+  [key: string]: unknown;
 }
 
-export interface CartItem {
-  productId?: string | number;
-  quantity?: number;
-  [key: string]: any;
-}
-
-// 2. Chaves do LocalStorage
 const KEYS = {
   products: "marmitaria:products",
   categories: "marmitaria:categories",
@@ -46,17 +48,16 @@ const KEYS = {
   orders: "marmitaria:orders",
   company: "marmitaria:company",
   cart: "marmitaria:cart",
-};
+  demoOrderCount: "marmitaria:demoOrderCount",
+} as const;
 
 const isBrowser = (): boolean => typeof window !== "undefined" && !!window.localStorage;
 
-// 3. Funções Genéricas de Leitura e Escrita
-// O <T> avisa ao TypeScript que o tipo de retorno será igual ao tipo do fallback
 function read<T>(key: string, fallback: T): T {
   if (!isBrowser()) return fallback;
   try {
     const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
+    return raw ? JSON.parse(raw) : fallback;
   } catch (error) {
     console.error(`[storage] falha ao ler ${key}`, error);
     return fallback;
@@ -73,7 +74,6 @@ function write<T>(key: string, value: T): T {
   return value;
 }
 
-// 4. Métodos Exportados com suas respectivas tipagens
 export const getProducts = (): Product[] => read<Product[]>(KEYS.products, []);
 export const saveProducts = (products: Product[]): Product[] => write<Product[]>(KEYS.products, products);
 
@@ -81,16 +81,19 @@ export const getCategories = (): Category[] => read<Category[]>(KEYS.categories,
 export const saveCategories = (categories: Category[]): Category[] => write<Category[]>(KEYS.categories, categories);
 
 export const getSettings = (): Settings | null => read<Settings | null>(KEYS.settings, null);
-export const saveSettings = (settings: Settings): Settings => write<Settings>(KEYS.settings, settings);
+export const saveSettings = (settings: Settings | null): Settings | null => write<Settings | null>(KEYS.settings, settings);
 
 export const getOrders = (): Order[] => read<Order[]>(KEYS.orders, []);
 export const saveOrders = (orders: Order[]): Order[] => write<Order[]>(KEYS.orders, orders);
 
-export const getCompany = (): Company | null => read<Company | null>(KEYS.company, null);
-export const saveCompany = (company: Company): Company => write<Company>(KEYS.company, company);
+export const getCompany = (): CompanyData | null => read<CompanyData | null>(KEYS.company, null);
+export const saveCompany = (company: CompanyData | null): CompanyData | null => write<CompanyData | null>(KEYS.company, company);
 
-export const getCart = (): CartItem[] => read<CartItem[]>(KEYS.cart, []);
-export const saveCart = (cart: CartItem[]): CartItem[] => write<CartItem[]>(KEYS.cart, cart);
+export const getCart = (): unknown[] => read<unknown[]>(KEYS.cart, []);
+export const saveCart = (cart: unknown[]): unknown[] => write<unknown[]>(KEYS.cart, cart);
+
+export const getDemoOrderCount = (): number => read<number>(KEYS.demoOrderCount, 0);
+export const saveDemoOrderCount = (count: number): number => write<number>(KEYS.demoOrderCount, count);
 
 export const hasData = (): boolean => !!getCompany() && getCategories().length > 0;
 
@@ -107,5 +110,7 @@ export default {
   saveCompany,
   getCart,
   saveCart,
+  getDemoOrderCount,
+  saveDemoOrderCount,
   hasData,
 };

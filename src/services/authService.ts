@@ -1,14 +1,19 @@
+interface AuthSession {
+  authenticated: true;
+  loginAt: string;
+  expiresAt: string;
+}
+
+interface AuthError {
+  authenticated: false;
+  error: string;
+}
+
+type AuthResult = AuthSession | AuthError;
+
 const AUTH_KEY = "marmitaria:auth";
 const DEFAULT_ADMIN_PIN = "1234";
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
-
-// Definindo o formato da Sessão para o Autocomplete do VS Code
-export interface AuthSession {
-  authenticated: boolean;
-  loginAt?: string;
-  expiresAt?: string;
-  error?: string;
-}
 
 function isBrowser(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -18,7 +23,7 @@ function readSession(): AuthSession | null {
   if (!isBrowser()) return null;
   try {
     const value = window.localStorage.getItem(AUTH_KEY);
-    return value ? (JSON.parse(value) as AuthSession) : null;
+    return value ? JSON.parse(value) : null;
   } catch {
     return null;
   }
@@ -42,7 +47,7 @@ export function setAdminPin(pin: string): string {
   return pin;
 }
 
-export function login(pin: string): AuthSession {
+export function login(pin: string): AuthResult {
   if (pin !== getAdminPin()) {
     return { authenticated: false, error: "PIN inválido." };
   }
@@ -57,7 +62,7 @@ export function login(pin: string): AuthSession {
   return session;
 }
 
-export function logout(): boolean {
+export function logout(): true {
   if (!isBrowser()) return true;
   window.localStorage.removeItem(AUTH_KEY);
   return true;

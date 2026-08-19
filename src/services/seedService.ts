@@ -1,10 +1,49 @@
-import storage, { Category, Product, Company, Settings } from "./localStorageService";
+import storage from "./localStorageService";
 import { uid } from "../utils/uid";
 
-const SEED_VERSION_KEY = "marmitaria:seedVersion";
-const SEED_VERSION = "mvp-v18";
+interface SeedCategory {
+  id: string;
+  name: string;
+}
 
-export const DEFAULT_COMPANY: Company = {
+interface SeedSize {
+  value: number | string;
+  label: string;
+  price: number;
+}
+
+interface SeedProduct {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  categoryId: string;
+  type: string;
+  available: boolean;
+  price?: number;
+  sizes?: SeedSize[];
+  proteins?: string[];
+  sides?: string[];
+}
+
+interface SeedCompany {
+  name: string;
+  whatsapp: string;
+  phone: string;
+  logo: string;
+  banner: string;
+  address: string;
+  schedule: string;
+}
+
+interface SeedSettings {
+  defaultMessage?: string;
+}
+
+const SEED_VERSION_KEY = "marmitaria:seedVersion";
+const SEED_VERSION = "mvp-v17";
+
+export const DEFAULT_COMPANY: SeedCompany = {
   name: "Tempero Marmitaria",
   whatsapp: "5584999036688",
   phone: "(84) 99903-6688",
@@ -14,20 +53,16 @@ export const DEFAULT_COMPANY: Company = {
   schedule: "Seg a Sáb — 10h às 15h",
 };
 
-export const DEFAULT_SETTINGS: Settings = {
+export const DEFAULT_SETTINGS: SeedSettings = {
   defaultMessage: "Olá! Gostaria de fazer um pedido.",
 };
 
-// O TypeScript agora sabe que a lista é de Categorias e retorna uma string (o ID)
-function byName(categories: Category[], name: string): string {
-  // CORREÇÃO: Usando colchetes para evitar o erro de index signature
-  const category = categories.find((c) => c["name"] === name);
-  return category ? String(category["id"]) : "";
+function byName(categories: SeedCategory[], name: string): string {
+  return categories.find((c) => c.name === name)!.id;
 }
 
-// Essa função agora avisa explicitamente o que ela devolve no final
-function buildSeed(): { categories: Category[]; products: Product[] } {
-  const categories: Category[] = [
+function buildSeed(): { categories: SeedCategory[]; products: SeedProduct[] } {
+  const categories: SeedCategory[] = [
     { id: uid(), name: "Marmitas Tradicionais" },
     { id: uid(), name: "Promocional do Dia" },
     { id: uid(), name: "Pratos Individuais" },
@@ -39,58 +74,18 @@ function buildSeed(): { categories: Category[]; products: Product[] } {
   const individuais = byName(categories, "Pratos Individuais");
   const acompanhamentos = byName(categories, "Acompanhamentos");
 
-  const rawProducts = [
+  const products: SeedProduct[] = [
     {
-      name: "Marmita P (400g)",
-      description: "Monte sua marmita com 2 proteínas e acompanhamentos.",
+      name: "Marmita Tradicional",
+      description: "Escolha o tamanho, 2 proteínas e os acompanhamentos.",
       image: "/images/frango.jpg",
       categoryId: tradicionais,
-      type: "customizable",
-      price: 15,
-      proteins: [
-        "Filé de Peito Grelhado",
-        "Filé de Peito Empanado",
-        "Frango a Parmegiana",
-        "Lasanha de Frango",
-        "Salpicão de Frango",
-        "Creme de Frango",
-        "Calabresa (com barbecue ou sem)",
+      type: "prato-do-dia",
+      sizes: [
+        { value: 400, label: "P 400g (prato quadrado)", price: 15 },
+        { value: 550, label: "M 550g (prato redondo)", price: 19 },
+        { value: 700, label: "G 700g (prato redondo)", price: 23 },
       ],
-      sides: [
-        "Feijão Preto", "Feijão Carioca", "Arroz", "Macarrão", "Purê de Batata",
-        "Farofa", "Vinagrete", "Beterraba Ralada", "Pepino", "Cenoura Ralada",
-        "Batata e Cenoura com Maionese", "Batata e Cenoura"
-      ]
-    },
-    {
-      name: "Marmita M (550g)",
-      description: "Monte sua marmita com 2 proteínas e acompanhamentos.",
-      image: "/images/frango.jpg",
-      categoryId: tradicionais,
-      type: "customizable",
-      price: 19,
-      proteins: [
-        "Filé de Peito Grelhado",
-        "Filé de Peito Empanado",
-        "Frango a Parmegiana",
-        "Lasanha de Frango",
-        "Salpicão de Frango",
-        "Creme de Frango",
-        "Calabresa (com barbecue ou sem)",
-      ],
-      sides: [
-        "Feijão Preto", "Feijão Carioca", "Arroz", "Macarrão", "Purê de Batata",
-        "Farofa", "Vinagrete", "Beterraba Ralada", "Pepino", "Cenoura Ralada",
-        "Batata e Cenoura com Maionese", "Batata e Cenoura"
-      ]
-    },
-    {
-      name: "Marmita G (700g)",
-      description: "Monte sua marmita com 2 proteínas e acompanhamentos.",
-      image: "/images/frango.jpg",
-      categoryId: tradicionais,
-      type: "customizable",
-      price: 23,
       proteins: [
         "Filé de Peito Grelhado",
         "Filé de Peito Empanado",
@@ -226,14 +221,7 @@ function buildSeed(): { categories: Category[]; products: Product[] } {
       categoryId: acompanhamentos,
       type: "acompanhamento",
     },
-  ];
-
-  // Adiciona as propriedades faltantes garantindo que o retorno seja um array de Product
-  const products: Product[] = rawProducts.map((product) => ({
-    id: uid(),
-    available: true,
-    ...product,
-  }));
+  ].map((product) => ({ id: uid(), available: true, ...product }));
 
   return { categories, products };
 }

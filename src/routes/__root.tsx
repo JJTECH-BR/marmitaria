@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { AppProvider } from "../contexts/AppContext";
 import { AuthProvider } from "../contexts/AuthContext";
 import { CartProvider } from "../contexts/CartContext";
+import { DemoProvider } from "../contexts/DemoContext";
 
 function NotFoundComponent() {
   return (
@@ -124,11 +125,13 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AppProvider>
         <AuthProvider>
-          <CartProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-            <Toaster position="top-center" richColors />
-          </CartProvider>
+          <DemoProvider>
+            <CartProvider>
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+              <Toaster position="top-center" richColors />
+            </CartProvider>
+          </DemoProvider>
         </AuthProvider>
       </AppProvider>
     </QueryClientProvider>
