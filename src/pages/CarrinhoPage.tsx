@@ -24,6 +24,7 @@ import { formatPrice } from "../utils/format";
 import { buildOrderMessage, buildWhatsappUrl } from "../utils/whatsapp";
 import { cn } from "../lib/utils";
 
+
 interface PaymentMethod {
   id: string;
   label: string;
