@@ -158,8 +158,13 @@ export default function AdminMenuPage() {
   const displayPrice = (product: ProductDisplay): string => {
     const priced = (product.sizes || []).filter((s) => Number(s.price) > 0);
     if (product.type === "prato-do-dia" || priced.length) {
+<<<<<<< HEAD:src/pages/admin/AdminMenuPage.jsx
+      const min = Math.min(...priced.map((s) => s.price), Infinity);
+      return Number.isFinite(min) ? formatPrice(min) : "—";
+=======
       const min = Math.min(...priced.map((s) => Number(s.price)), Infinity);
       return Number.isFinite(min) ? `a partir de ${formatPrice(min)}` : "—";
+>>>>>>> master:src/pages/admin/AdminMenuPage.tsx
     }
     return formatPrice(product.price);
   };

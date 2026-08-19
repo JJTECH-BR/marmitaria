@@ -49,12 +49,9 @@ export default function CardProduto({ product, onOpen, onAdd }: CardProdutoProps
         <div className="mt-auto flex items-center justify-between gap-2 pt-3">
           <div className="flex flex-col leading-tight">
             {hasSizes ? (
-              <>
-                <span className="text-[11px] text-muted-foreground">a partir de</span>
-                <span className="text-base font-extrabold text-primary">
-                  {formatPrice(minPrice)}
-                </span>
-              </>
+              <span className="text-base font-extrabold text-primary">
+                {formatPrice(minPrice)}
+              </span>
             ) : (
               <span className="text-base font-extrabold text-primary">
                 {formatPrice(product.price)}
