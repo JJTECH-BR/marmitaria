@@ -7,7 +7,6 @@ import ProductGrid from "../components/ProductGrid";
 import ProductModal from "../components/ProductModal";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
-import DemoBanner from "../components/DemoBanner";
 import { cn } from "../lib/utils";
 import Loading from "../components/ui/Loading";
 import { useApp, type Product } from "../contexts/AppContext";
@@ -26,23 +25,23 @@ interface Section {
 const SECTIONS: Section[] = [
   {
     id: "marmitas-tradicionais",
-    label: "Marmitas Tradicionais",
-    title: "Marmitas Tradicionais",
+    label: "Marmitas Fitness",
+    title: "Marmitas Fitness",
     subtitle: "Monte sua marmita do seu jeito, escolhendo o tamanho, acompanhamentos e duas proteínas.",
     categoryName: "Marmitas Tradicionais",
   },
   {
     id: "promocional-do-dia",
-    label: "Promocional do Dia",
-    title: "Promocional do Dia",
-    subtitle: "500g de comida. Acompanha arroz e batata frita ou batata palha.",
+    label: "Pratos do Dia",
+    title: "Pratos do Dia",
+    subtitle: "500g de comida caseira. Acompanha arroz e batata frita ou batata palha.",
     categoryName: "Promocional do Dia",
   },
   {
     id: "individuais",
     label: "Individuais",
     title: "Pratos Individuais",
-    subtitle: "Clássicos sempre no cardápio.",
+    subtitle: "Porções individuais para quem está com pressa.",
     categoryName: "Pratos Individuais",
   },
 ];
@@ -50,15 +49,16 @@ const SECTIONS: Section[] = [
 export default function HomePage() {
   const { company, products, categories, loading } = useApp();
   const { addItem, count, subtotal } = useCart();
+  const { maxCartItems } = useDemo();
   const [activeCategory, setActiveCategory] = useState(SECTIONS[0].id);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<Product | null>(null);
 
   const byCategoryName = (name: string): Product[] => {
     const category = categories.find((c) => c.name === name);
     return category ? products.filter((p) => p.categoryId === category.id && p.available) : [];
   };
 
-  const openProduct = (product: Product) => setSelected(product as Product);
+  const openProduct = (product: Product) => setSelected(product);
 
   const quickAdd = (product: Product) => {
     if (count >= maxCartItems) {
@@ -104,12 +104,12 @@ export default function HomePage() {
       <nav className="sticky top-16 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="container-app flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {SECTIONS.map((tab) => {
-            const isActive = activeTab === tab.id;
+            const isActive = activeCategory === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => {
-                  setActiveTab(tab.id);
+                  setActiveCategory(tab.id);
                   document.getElementById(tab.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
                 className={cn(
@@ -128,7 +128,7 @@ export default function HomePage() {
 
       <main className="container-app space-y-12 py-8">
         {SECTIONS.map((section) => {
-          const isVisible = activeTab === "ver-pratos" || activeTab === section.id;
+          const isVisible = activeCategory === "ver-pratos" || activeCategory === section.id;
           if (!isVisible) return null;
 
           return (
@@ -145,12 +145,14 @@ export default function HomePage() {
         })}
       </main>
 
-      <ProductModal
-        product={selected}
-        isOpen={!!selected}
-        onClose={() => setSelected(null)}
-        onConfirm={handleConfirm}
-      />
+      {selected && (
+        <ProductModal
+          product={selected}
+          isOpen={!!selected}
+          onClose={() => setSelected(null)}
+          onConfirm={handleConfirm}
+        />
+      )}
 
       {count > 0 ? <CartBar count={count} total={subtotal} /> : null}
 
@@ -159,7 +161,8 @@ export default function HomePage() {
   );
 }
 
-function Hero({ company }) {
+// Corrigida a tipagem e a função onShowAll que não existia
+function Hero({ company }: { company: any }) {
   return (
     <section className="container-app pt-5">
       <div className="relative overflow-hidden rounded-3xl shadow-lg">
@@ -170,18 +173,18 @@ function Hero({ company }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 space-y-4 p-8 sm:p-12">
-          <Badge variant="accent">AMOR EM CADA DETALHE</Badge>
+          <Badge variant="accent">FEITO COM TECH & SABOR</Badge>
           <h1 className="max-w-lg text-4xl font-extrabold text-white sm:text-5xl">
             Cardápio do Dia
           </h1>
           <p className="max-w-lg text-base text-white/90">
-            COMIDA DE QUALIDADE SABOR QUE IMPRESSIONA.
+            QUALIDADE, RAPEZ E SABOR EM CADA MARMITA.
           </p>
           <Button
             size="lg"
             variant="accent"
             className="mt-4"
-            onClick={onShowAll}
+            onClick={() => document.getElementById(SECTIONS[0].id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
           >
             Ver Pratos <FiArrowRight />
           </Button>
@@ -287,7 +290,7 @@ function Footer({ company }: { company: { name: string; logo?: string; address?:
           <p>
             Desenvolvido com ❤️ por{" "}
             <a
-              href="https://jj-tech26.netlify.app/"
+              href="https://jjtech26.netlify.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-primary transition-colors hover:underline"

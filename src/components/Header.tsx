@@ -11,16 +11,14 @@ export default function Header() {
     <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur">
       <div className="container-app flex h-16 items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3">
-          {company?.logo ? (
-            <img
-              src={company.logo}
-              alt={company.name}
-              className="h-10 w-10 rounded-xl bg-surface object-contain p-1"
-            />
-          ) : null}
+          <img
+            src="/logo-jjtech.jpeg"
+            alt="JJ Tech"
+            className="h-10 w-10 rounded-xl bg-surface object-contain p-1"
+          />
           <span className="flex flex-col leading-tight">
             <span className="text-sm font-extrabold sm:text-base">
-              {company?.name || "Marmitaria"}
+              {company?.name || "JJ Tech Marmitaria"}
             </span>
             <span className="text-xs text-muted-foreground">{company?.schedule}</span>
           </span>
