@@ -7,12 +7,10 @@ import ProductGrid from "../components/ProductGrid";
 import ProductModal from "../components/ProductModal";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
-import DemoBanner from "../components/DemoBanner";
 import { cn } from "../lib/utils";
 import Loading from "../components/ui/Loading";
 import { useApp, type Product } from "../contexts/AppContext";
 import { useCart } from "../contexts/CartContext";
-import { useDemo } from "../contexts/DemoContext";
 import { formatPrice } from "../utils/format";
 
 interface Section {
@@ -51,14 +49,17 @@ export default function HomePage() {
   const { company, products, categories, loading } = useApp();
   const { addItem, count, subtotal } = useCart();
   const [activeCategory, setActiveCategory] = useState(SECTIONS[0].id);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<Product | null>(null);
+
+  // Limite de itens no carrinho (adicionado para corrigir o erro de variável não definida)
+  const maxCartItems = 30;
 
   const byCategoryName = (name: string): Product[] => {
     const category = categories.find((c) => c.name === name);
     return category ? products.filter((p) => p.categoryId === category.id && p.available) : [];
   };
 
-  const openProduct = (product: Product) => setSelected(product as Product);
+  const openProduct = (product: Product) => setSelected(product);
 
   const quickAdd = (product: Product) => {
     if (count >= maxCartItems) {
@@ -104,12 +105,12 @@ export default function HomePage() {
       <nav className="sticky top-16 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="container-app flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {SECTIONS.map((tab) => {
-            const isActive = activeTab === tab.id;
+            const isActive = activeCategory === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => {
-                  setActiveTab(tab.id);
+                  setActiveCategory(tab.id);
                   document.getElementById(tab.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
                 className={cn(
@@ -128,7 +129,7 @@ export default function HomePage() {
 
       <main className="container-app space-y-12 py-8">
         {SECTIONS.map((section) => {
-          const isVisible = activeTab === "ver-pratos" || activeTab === section.id;
+          const isVisible = activeCategory === "ver-pratos" || activeCategory === section.id;
           if (!isVisible) return null;
 
           return (
@@ -145,12 +146,14 @@ export default function HomePage() {
         })}
       </main>
 
-      <ProductModal
-        product={selected}
-        isOpen={!!selected}
-        onClose={() => setSelected(null)}
-        onConfirm={handleConfirm}
-      />
+      {selected && (
+        <ProductModal
+          product={selected}
+          isOpen={!!selected}
+          onClose={() => setSelected(null)}
+          onConfirm={handleConfirm}
+        />
+      )}
 
       {count > 0 ? <CartBar count={count} total={subtotal} /> : null}
 
@@ -159,7 +162,8 @@ export default function HomePage() {
   );
 }
 
-function Hero({ company }) {
+// Corrigida a tipagem e a função onShowAll que não existia
+function Hero({ company }: { company: any }) {
   return (
     <section className="container-app pt-5">
       <div className="relative overflow-hidden rounded-3xl shadow-lg">
@@ -181,7 +185,7 @@ function Hero({ company }) {
             size="lg"
             variant="accent"
             className="mt-4"
-            onClick={onShowAll}
+            onClick={() => document.getElementById(SECTIONS[0].id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
           >
             Ver Pratos <FiArrowRight />
           </Button>
